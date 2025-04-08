@@ -1,4 +1,6 @@
-data/
+data/aggregated/*.csv
+data/cleaned/*.csv
+data/original/*.csv
 .DS_Store
 .idea/
 __pycache__
