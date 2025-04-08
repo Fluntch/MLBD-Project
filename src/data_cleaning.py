@@ -1,8 +1,3 @@
-import pandas as pd
-import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
-import os
 from src.helper import *
 
 DATA_DIR = "data/original"
@@ -296,7 +291,7 @@ def clean():
 
     clean_activity_dates(activity)
     compare_times_from_activity_and_scores(activity, all_scores, plot=True)
-    print(f"The scores times lie in a reasonable range (between {all_scores.date.min()} and {all_scores.date.max()}).\n)"
+    print(f"The scores times lie in a reasonable range (between {all_scores['time'].min()} and {all_scores['time'].max()}).\n"
           f"There is also only one time column ('date'), so there are no conflicts with order of events."
           f"We therefore don't need to clean them.")
 
@@ -309,6 +304,11 @@ def clean():
 
     inspect_missing_data(all_scores, 'all_scores')
     print("all_scores is not missing any data.")
+
+    # add date column to activity and all_scores, useful for upcoming feature extraction
+    activity["date"] = activity["activity_started"].dt.date
+    all_scores["date"] = all_scores["time"].dt.date
+
 
     activity.to_csv("data/cleaned/activity.csv", index=False)
     all_scores.to_csv("data/cleaned/all_scores.csv", index=False)

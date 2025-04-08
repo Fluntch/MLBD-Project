@@ -9,6 +9,8 @@ def load_csv_files(data_dir):
         if file.endswith(".csv"):
             name = file.replace(".csv", "")
             data[name] = pd.read_csv(os.path.join(data_dir, file)).convert_dtypes()
+            if "Unnamed: 0" in data[name].columns:
+                data[name].drop(columns="Unnamed: 0", inplace=True)
 
 
     return data
@@ -41,6 +43,7 @@ def prepare_data(path: str):
             (data["activity"], 'activity_started'),
             (data["activity"], 'activity_completed'),
             (data["activity"], 'activity_updated'),
+            (data["activity"], 'date'),
         ]
     if "math_results" in data:
         convert.append((data["math_results"], 'time'))
@@ -49,7 +52,8 @@ def prepare_data(path: str):
     if "text_results" in data:
         convert.append((data["text_results"], 'time'))
     if "all_scores" in data:
-        convert.append((data["all_scores"], 'time'))
+        convert += [(data["all_scores"], 'time'),
+                    (data["all_scores"], "date")]
 
     unix_timestamp = path.endswith("/original")
     convert_columns_to_datetime(convert, rename=True, unix_time=unix_timestamp)

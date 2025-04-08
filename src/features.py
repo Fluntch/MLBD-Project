@@ -6,19 +6,25 @@ from .feature_extraction import *
 def extract():
     path = "data/cleaned"
     data = prepare_data(path)
+    activity = data["activity"]
+    all_scores = data["all_scores"]
+
 
     # time spent
-    # compute_time_spent(data["activity"])
+    # compute_time_spent(activity)
 
     # test difficulty
-    # compute_test_difficulty(data["all_scores"])
+    # compute_test_difficulty(all_scores)
 
     # study days per student
-    compute_study_and_exam_days(data)
+    user_days = compute_study_and_exam_days(data)
 
-    # avg_number_of_activities
+    # avg_number_of_activities_per_day
+    compute_number_of_activities(user_days, activity)
 
-    # avg_time_spent_per_session(activity_completed - activity_started)
+    # compute_number_of_activities(data["activity"])
+
+    # avg_time_spent_per_session_per_day(activity_completed - activity_started)
 
     # avg_number_of_tests_taken
 
