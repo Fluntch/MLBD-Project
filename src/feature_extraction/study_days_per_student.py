@@ -68,4 +68,4 @@ def visualize_user_days(combined: pd.DataFrame) -> None:
     )
 
     plt.tight_layout()
-    plt.show()
+    save_plot(plt.gcf(), __file__, "User Days")

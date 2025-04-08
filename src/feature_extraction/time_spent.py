@@ -1,6 +1,5 @@
-import pandas as pd
-from matplotlib import pyplot as plt
 from src.config import PLOT
+from src.helper import *
 
 def truncate_long_durations(activity: pd.DataFrame):
     """Truncate very long durations per activity_type based on a fixed duration threshold."""
@@ -30,6 +29,7 @@ def truncate_long_durations(activity: pd.DataFrame):
         truncated_perc = round((num_truncated / total) * 100, 2) if total > 0 else 0
 
         activity.loc[long_mask, "time_spent"] = pd.to_timedelta(threshold, unit="m")
+        activity.loc[long_mask, "time_in_minutes"] = threshold
         activity.loc[long_mask, "time_truncated"] = True
 
         print(f"{num_truncated} entries were truncated for activity_type '{activity_type}' "
@@ -40,7 +40,6 @@ def truncate_long_durations(activity: pd.DataFrame):
             visualize_time_spent(activity, activity_type, title=title)
 
     activity["time_truncated"] = activity["time_truncated"].fillna(False)
-
     return activity
 
 
@@ -53,13 +52,12 @@ def visualize_time_spent(activity: pd.DataFrame, activity_type: str, title: str 
     plt.xlabel("Time in minutes")
     plt.ylabel(f"{activity_type} count")
 
-    if title is not None:
-        plt.title(title)
-    else:
-        plt.title(f"Time spent in {activity_type} activity")
+    title = title or f"Time spent in {activity_type} activity"
+    plt.title(title)
 
     plt.legend()
-    plt.show()
+    save_plot(plt.gcf(), __file__, title)
+    plt.close()
 
 def get_time_spent_overview(activity: pd.DataFrame) -> pd.DataFrame:
     activity = activity.copy()

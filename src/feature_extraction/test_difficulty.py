@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 from src.config import *
+from src.helper import *
 
 AVERAGE_SCORES_PATH = "data/aggregated/average_test_scores.csv"
 
@@ -43,11 +44,12 @@ def get_test_performance(test_id: str, course: str, percentage: float) -> float:
 
 def visualize_test_performance(activity: pd.DataFrame):
     plt.hist(activity['performance'], edgecolor="black")
-    plt.title("Distribution of Test Performances")
+    title = "Distribution of Test Performances"
+    plt.title(title)
     plt.xlabel("Relative Test Performance (in %)")
     plt.ylabel("Count")
+    save_plot(plt.gcf(), __file__, title)
 
-    plt.show()
 
 def compute_test_difficulty(all_scores: pd.DataFrame):
     """

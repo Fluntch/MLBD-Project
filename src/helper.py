@@ -95,3 +95,13 @@ def plot_histogram(data,
     ax.legend()
 
     return ax
+
+def save_plot(fig, file_path, title):
+    relative_path = os.path.relpath(file_path, start=os.getcwd()).replace(".py", "")
+
+    plot_path = os.path.join('plots', os.path.relpath(relative_path, start='src'))
+
+    os.makedirs(plot_path, exist_ok=True)
+
+    save_path = os.path.join(plot_path, title)
+    fig.savefig(save_path)

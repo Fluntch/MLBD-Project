@@ -1,7 +1,8 @@
 from src.helper import *
 from src.config import PLOT
 
-def visualize_time_spent_per_day(user_days, activity):
+def visualize_time_spent_per_day(user_data, activity):
+    print("Plotting, this may take a while...")
     activities = [a for a in activity["activity_type"].unique() if a != "access"]
     domains = ["math", "essay", "text"]
 
@@ -10,9 +11,8 @@ def visualize_time_spent_per_day(user_days, activity):
     for i, a in enumerate(activities):
         for j, domain in enumerate(domains):
             ax = axes[i][j] if len(activities) > 1 else axes[j]
-            subset = activity[
-                (activity["activity_type"] == a) & (activity["domain"] == domain)
-                ]["time_in_minutes"]
+            subset = user_data[(user_data["activity_type"] == a)
+                               & (user_data["domain"] == domain)]["time_in_minutes"]
 
             plot_histogram(
                 data=subset,
@@ -22,7 +22,8 @@ def visualize_time_spent_per_day(user_days, activity):
             )
 
     plt.tight_layout()
-    plt.show()
+    save_plot(plt.gcf(), __file__, "Time Spent per Day")
+    plt.close()
 
 def compute_time_spent_per_day(user_days: pd.DataFrame, activity: pd.DataFrame):
     """per activity, total, ..."""

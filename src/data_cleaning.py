@@ -3,7 +3,6 @@ from src.config import *
 
 DATA_DIR = "data/original"
 
-
 def add_domains(activity: pd.DataFrame,
                 all_scores: pd.DataFrame,
                 math_results: pd.DataFrame,
@@ -13,7 +12,6 @@ def add_domains(activity: pd.DataFrame,
     math_ids = set([str(m_id) for m_id in math_results["course_id"].unique()])
     text_ids = set([str(t_id) for t_id in text_results["course_id"].unique()])
     essay_ids = set([str(e_id) for e_id in essay_results["course"].unique()])
-    activity_course_ids = set([str(c_id) for c_id in activity["course_id"].unique()])
 
     print(f"Overlap between math_ids and text_ids: {len(math_ids.intersection(text_ids))}")
     math_essay_id_overlap = math_ids.intersection(essay_ids)
@@ -51,20 +49,22 @@ def inspect_missing_data(df: pd.DataFrame, df_name: str):
     print(f"==Inspecting missing data for {df_name}==")
     print(df.isnull().sum().reset_index(name='Nb of NAN'))
 
-def visualize_dates(df: pd.DataFrame, column_name: str, plot=False):
+def visualize_dates(df: pd.DataFrame, column_name: str):
     """
     Plots a histogram showing the distribution of dates in a given column of a DataFrame.
     """
     date_series = pd.to_datetime(df[column_name], errors='coerce').dropna()
 
-    if plot:
+    if PLOT:
         plt.figure(figsize=(10, 4))
         plt.hist(date_series, color='steelblue', edgecolor='black')
-        plt.title(f'Distribution of Dates in {column_name}')
+        title = f'Distribution of Dates in {column_name}'
+        plt.title(title)
         plt.xlabel('Date')
         plt.ylabel('Frequency')
         plt.tight_layout()
-        plt.show()
+        save_plot(plt.gcf(), __file__, title)
+        plt.close()
 
 def restore_completed_before_started(activity: pd.DataFrame) -> pd.DataFrame:
     """
@@ -237,9 +237,10 @@ def compare_times_from_activity_and_scores(activity: pd.DataFrame, all_scores: p
         plt.legend()
         plt.xlabel("Date")
         plt.ylabel("Count")
-        plt.title("Weekly Distribution of Activity and Score Dates")
+        title = "Weekly Distribution of Activity and Score Dates"
         plt.tight_layout()
-        plt.show()
+        save_plot(plt.gcf(), __file__, title)
+        plt.close()
 
     print(summary_df)
     dataset_date_range = (max(activity_dates.max(), scores_dates.max()) - min(activity_dates.min(), scores_dates.min())).days

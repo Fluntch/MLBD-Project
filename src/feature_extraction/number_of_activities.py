@@ -3,8 +3,10 @@ from src.helper import *
 from src.config import *
 
 def visualize_number_of_activities(user_days: pd.DataFrame):
-    plot_histogram(user_days.number_of_activities, title = 'Number of Activities per Day')
-    plt.show()
+    title = "Number of Activities per Day"
+    plot_histogram(user_days.number_of_activities, title = title)
+    save_plot(plt.gcf(), __file__, title)
+    plt.close()
 
 
 def compute_number_of_activities(user_days: pd.DataFrame, activity: pd.DataFrame):
