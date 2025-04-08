@@ -1,5 +1,5 @@
 from src.helper import *
-from src.const import *
+from src.config import *
 
 DATA_DIR = "data/original"
 

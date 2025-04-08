@@ -1,6 +1,6 @@
 import pandas as pd
 from src.helper import *
-from src.const import *
+from src.config import *
 
 def visualize_number_of_activities(user_days: pd.DataFrame):
     plot_histogram(user_days.number_of_activities, title = 'Number of Activities per Day')

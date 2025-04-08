@@ -1,6 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-from src.const import *
+from src.config import *
 
 AVERAGE_SCORES_PATH = "data/aggregated/average_test_scores.csv"
 

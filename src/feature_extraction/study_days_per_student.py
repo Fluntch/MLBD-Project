@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from src.helper import *
-from src.const import *
+from src.config import *
 
 import pandas as pd
 from typing import Dict

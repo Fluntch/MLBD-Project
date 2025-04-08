@@ -1,6 +1,6 @@
 import pandas as pd
 from matplotlib import pyplot as plt
-from src.const import PLOT
+from src.config import PLOT
 
 def truncate_long_durations(activity: pd.DataFrame):
     """Truncate very long durations per activity_type based on a fixed duration threshold."""

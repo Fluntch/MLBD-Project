@@ -1,5 +1,5 @@
 from src.helper import *
-from src.const import PLOT
+from src.config import PLOT
 
 def visualize_time_spent_per_day(user_days, activity):
     activities = [a for a in activity["activity_type"].unique() if a != "access"]
