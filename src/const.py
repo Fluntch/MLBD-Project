@@ -1,0 +1,4 @@
+PLOT = False
+PREPROCESS = True
+EXTRACT = True
+MODEL = False

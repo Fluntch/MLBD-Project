@@ -17,6 +17,8 @@ def load_csv_files(data_dir):
 
 def convert_columns_to_datetime(convert, rename=False, unix_time=False):
     for df, col in convert:
+        if col not in df.columns:
+            continue
         col_to_use = col
         if rename:
             col_to_use = ''.join(['_' + c.lower() if c.isupper() else c for c in col]).lstrip('_')

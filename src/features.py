@@ -1,17 +1,14 @@
 from src.helper import *
 from .feature_extraction import *
 
-
-
 def extract():
     path = "data/cleaned"
     data = prepare_data(path)
     activity = data["activity"]
     all_scores = data["all_scores"]
 
-
     # time spent
-    # compute_time_spent(activity)
+    activity = compute_time_spent(activity)
 
     # test difficulty
     # compute_test_difficulty(all_scores)
@@ -19,25 +16,22 @@ def extract():
     # study days per student
     user_days = compute_study_and_exam_days(data)
 
-    # avg_number_of_activities_per_day
-    compute_number_of_activities(user_days, activity)
+    # number_of_activities_per_day
+    user_days = compute_number_of_activities(user_days, activity)
 
-    # compute_number_of_activities(data["activity"])
+    # time_spent_per_day
+    user_days = compute_time_spent_per_day(user_days, activity)
 
-    # avg_time_spent_per_session_per_day(activity_completed - activity_started)
-
-    # avg_number_of_tests_taken
+    # avg_performance
+    user_days = compute_average_performance(all_scores, user_days)
 
     # avg_number_of_questions_attempted
 
     # avg_number_of_questions_solved
 
-    # avg_number_of_reattempts
+    # avg_time_between_consecutive_exams
 
-    # avg_time_between_consecutive_tests
+    # usage_frequency(worked on the platform for at least 15 minutes)
 
-    # usage_frequency(worked on the plattform for at least 15 minutes)
-
-    # activity_diversity
-
-    pass
+    user_days.to_csv("data/features/user_days.csv", index=False)
+    activity.to_csv("data/features/activity.csv", index=False)

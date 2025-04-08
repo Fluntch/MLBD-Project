@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 from src.helper import *
+from src.const import *
 
 import pandas as pd
 from typing import Dict
@@ -35,7 +36,8 @@ def compute_user_days(activity: pd.DataFrame, all_scores: pd.DataFrame) -> pd.Da
 
 def compute_study_and_exam_days(data: Dict[str, pd.DataFrame]) -> pd.DataFrame:
     user_days = compute_user_days(data['activity'], data['all_scores'])
-    visualize_user_days(user_days)
+    if PLOT:
+        visualize_user_days(user_days)
     return user_days
 
 def visualize_user_days(combined: pd.DataFrame) -> None:

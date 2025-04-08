@@ -1,5 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+from src.const import *
 
 AVERAGE_SCORES_PATH = "data/aggregated/average_test_scores.csv"
 
@@ -70,5 +71,6 @@ def compute_test_difficulty(all_scores: pd.DataFrame):
         axis=1
     )
 
-    visualize_test_performance(all_scores)
+    if PLOT:
+        visualize_test_performance(all_scores)
 

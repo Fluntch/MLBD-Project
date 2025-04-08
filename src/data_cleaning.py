@@ -1,36 +1,27 @@
 from src.helper import *
+from src.const import *
 
 DATA_DIR = "data/original"
 
 
-def add_domains(data):
-    math_ids = set([str(m_id) for m_id in data["math_results"]["course_id"].unique()])
-    text_ids = set([str(t_id) for t_id in data["text_results"]["course_id"].unique()])
-    essay_ids = set([str(e_id) for e_id in data["essay_results"]["course"].unique()])
-    activity_course_ids = set([str(c_id) for c_id in data["activity"]["course_id"].unique()])
+def add_domains(activity: pd.DataFrame,
+                all_scores: pd.DataFrame,
+                math_results: pd.DataFrame,
+                text_results: pd.DataFrame,
+                essay_results: pd.DataFrame):
+
+    math_ids = set([str(m_id) for m_id in math_results["course_id"].unique()])
+    text_ids = set([str(t_id) for t_id in text_results["course_id"].unique()])
+    essay_ids = set([str(e_id) for e_id in essay_results["course"].unique()])
+    activity_course_ids = set([str(c_id) for c_id in activity["course_id"].unique()])
 
     print(f"Overlap between math_ids and text_ids: {len(math_ids.intersection(text_ids))}")
     math_essay_id_overlap = math_ids.intersection(essay_ids)
     print(f"Overlap between math_ids and essay_ids: {len(math_essay_id_overlap)}")
     print(f"Overlap between text_ids and essay_ids: {len(text_ids.intersection(essay_ids))}")
 
-    # print(f"The course ids {' & '.join(str(i) for i in math_ids.intersection(essay_ids))} exists both for math and essay courses."
-    #       f"This complicates our task of mapping each course to a domain.")
-    #
-    # essay_types = list(data["essay_results"]["textType"].unique())
-    # print(f"We notice that in all_scores, some test_ids clearly come from essay_results: {', '.join(essay_types)}.")
-    # same_length = len(data["essay_results"]) == len(
-    #     data["all_scores"][data["all_scores"]["test_id"].isin(essay_types)])
-    #
-    # if same_length:
-    #     print(
-    #         f"A quick check confirms that the number of entries in all_scores with these test_ids matches exactly the number of rows in essay_results "
-    #         f"(Both are of length {len(data['essay_results'])}).")
-    #     print("We can therefore use test_id to determine whether a result belongs to an essay or math test.")
-    #     print("However, this only works for all_results.csv. For activity.csv, the problem of mapping remains.")
-    #
-
     print("==Assigning domains==")
+
     def assign_domain(row):
         course_id = str(row["course"]) if "course" in row else str(row["course_id"])
         if course_id in text_ids:
@@ -42,18 +33,19 @@ def add_domains(data):
         else:
             return pd.NA
 
-    data["all_scores"]["domain"] = data["all_scores"].apply(assign_domain, axis=1)
-    missing_vals_scores = data["all_scores"]["domain"].isna().sum()
+    all_scores["domain"] = all_scores.apply(assign_domain, axis=1)
+    missing_vals_scores = all_scores["domain"].isna().sum()
     print(f"For all scores, all entries could be mapped to a domain. (missing_vals_scores:  {missing_vals_scores})")
 
-
-    data["activity"]["domain"] = data["activity"].apply(assign_domain, axis=1)
-    non_mappable_course_ids = data["activity"][data["activity"]["domain"].isna()]["course_id"].unique()
-    missing_vals = data["activity"]["domain"].isna().sum()
+    activity["domain"] = activity.apply(assign_domain, axis=1)
+    non_mappable_course_ids = activity[activity["domain"].isna()]["course_id"].unique()
+    missing_vals = activity["domain"].isna().sum()
     print(f"For {missing_vals} activities we could not assign a domain since their IDs don't match any of the provided ones. "
-          f"({round(missing_vals/len(data['activity']), 2)*100}%)")
-    print(f"Non mappable course_ids: {', '.join([str(x) for x in non_mappable_course_ids])}")
-
+          f"({round(missing_vals / len(activity), 2) * 100}%)")
+    if non_mappable_course_ids:
+        print(f"Non mappable course_ids: {', '.join([str(x) for x in non_mappable_course_ids])}")
+    else:
+        print("All courses could be mapped to a domain.")
 
 def inspect_missing_data(df: pd.DataFrame, df_name: str):
     print(f"==Inspecting missing data for {df_name}==")
@@ -204,10 +196,13 @@ def clean_activity_dates(activity: pd.DataFrame):
 
     print(f"Since unresolved rows account for only {round((num_invalid_remaining / len(activity)) * 100, 2)}% of the total data, "
           f"we consider it acceptable to exclude them from time-related processing.")
+
     print(f"==Finished cleaning dates in activity.csv==")
+    return activity[activity['times_valid']]
 
 
-def compare_times_from_activity_and_scores(activity: pd.DataFrame, all_scores: pd.DataFrame, plot=False):
+
+def compare_times_from_activity_and_scores(activity: pd.DataFrame, all_scores: pd.DataFrame):
     # only work on valid dates from activity.csv
     activity_valid = activity[activity['times_valid']]
 
@@ -229,7 +224,7 @@ def compare_times_from_activity_and_scores(activity: pd.DataFrame, all_scores: p
     }, index=["min", "max", "count"])
 
     # Plot histograms
-    if plot:
+    if PLOT:
         plt.figure(figsize=(10, 5))
 
         min_date = min(activity_dates.min(), scores_dates.min())
@@ -264,33 +259,49 @@ def clean():
     all_scores = data["all_scores"]
     print("===Loaded all data===")
 
-    # convert unix timestamps to datetime
-    convert_columns_to_datetime([
-        (activity, 'activity_started'),
-        (activity, 'activity_completed'),
-        (activity, 'activity_updated'),
-        (math_results, 'time'),
-        (essay_results, 'time'),
-        (text_results, 'time'),
-        (all_scores, 'time'),
-    ], rename=True)
-    print("===Converted timestamps===")
+    # remove activities which are development courses and not actual in usage by real students
+    courses_to_remove = [1696, 2019, 8117, 0, 2515, 2440]
+
+    scores_bef = len(all_scores)
+    all_scores = all_scores[~all_scores.course.isin(courses_to_remove)]
+    print(
+        f"Removed {scores_bef - len(all_scores)} ({round((1 - len(all_scores) / scores_bef) * 100, 2)}%) courses from all_scores since they belong to courses used in development of the platform.")
+
+    act_bef = len(activity)
+    activity = activity[~activity.course_id.isin(courses_to_remove)]
+    print(
+        f"Removed {act_bef - len(activity)} ({round((1 - len(activity) / act_bef) * 100, 2)}%) courses from activity since they belong to courses used in development of the platform.")
+
+    # Remove all scores from exams which weren't the first attempt
+    before_len = len(all_scores)
+    all_scores = (
+        all_scores
+        .sort_values("time")  # ensure first attempt is first chronologically
+        .groupby(["user_id", "test_id"], as_index=False)
+        .first()
+    )
+    after_len = len(all_scores)
+    dropped = before_len - after_len
+    dropped_perc = round((dropped / before_len) * 100, 2)
+    print(f"Removed {dropped} entries ({dropped_perc}%) from all_scores to keep only first exam attempts per user.")
+
 
     # add domain to activity.csv
     print("Adding domain (math, essay, text) to all_scores.csv and activity.csv")
-    add_domains(data)
+    add_domains(activity, all_scores, math_results, text_results, essay_results)
 
-    print("===Visualize dates===")
-    visualize_dates(activity, 'activity_started')
-    visualize_dates(activity, 'activity_updated')
-    visualize_dates(activity, 'activity_completed')
-    print("It becomes clear that there are some wrong dates in activity_completed in activity.csv, \n"
-          "as a couple of dates are from 1970, and sometimes the order of activities is non-sensical (e.g. activities finishing before they started). \n"
-          "We will handle these values.")
-    visualize_dates(all_scores, 'time')
+    if PLOT:
+        print("===Visualize dates===")
+        visualize_dates(activity, 'activity_started')
+        visualize_dates(activity, 'activity_updated')
+        visualize_dates(activity, 'activity_completed')
+        print("It becomes clear that there are some wrong dates in activity_completed in activity.csv, \n"
+              "as a couple of dates are from 1970, and sometimes the order of activities is non-sensical (e.g. activities finishing before they started). \n"
+              "We will handle these values.")
+        visualize_dates(all_scores, 'time')
 
-    clean_activity_dates(activity)
-    compare_times_from_activity_and_scores(activity, all_scores, plot=True)
+    activity = clean_activity_dates(activity)
+    compare_times_from_activity_and_scores(activity, all_scores)
     print(f"The scores times lie in a reasonable range (between {all_scores['time'].min()} and {all_scores['time'].max()}).\n"
           f"There is also only one time column ('date'), so there are no conflicts with order of events."
           f"We therefore don't need to clean them.")

@@ -2,11 +2,7 @@ from src import data_cleaning
 from src import features
 from src import model
 import seaborn as sns
-
-
-PREPROCESS = False
-EXTRACT = True
-MODEL = False
+from src.const import *
 
 def main():
     sns.set_palette(["#D3D3D3"])
