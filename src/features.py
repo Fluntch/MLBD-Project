@@ -11,7 +11,7 @@ def extract():
     activity = compute_time_spent(activity)
 
     # test difficulty
-    # compute_test_difficulty(all_scores)
+    compute_test_difficulty(all_scores)
 
     # study days per student
     user_days = compute_study_and_exam_days(data)
