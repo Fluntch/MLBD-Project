@@ -45,6 +45,26 @@ def add_domains(activity: pd.DataFrame,
     else:
         print("All courses could be mapped to a domain.")
 
+    def get_per_activity(sub_len):
+        total = len(activity)
+        return round((sub_len / total), 2) * 100
+
+    def get_per_scores(sub_len):
+        total = len(all_scores)
+        return round((sub_len / total), 2) * 100
+
+
+    print("activity.csv:\n")
+    print(f"Math courses: {get_per_activity(len(activity[activity.domain == 'math']))}% of data")
+    print(f"Text courses: {get_per_activity(len(activity[activity.domain == 'text']))}% of data")
+    print(f"Essay courses: {get_per_activity(len(activity[activity.domain == 'essay']))}% of data")
+
+    print("all_scores.csv:\n")
+    print(f"Math courses: {get_per_scores(len(all_scores[all_scores.domain == 'math']))}% of data")
+    print(f"Text courses: {get_per_scores(len(all_scores[all_scores.domain == 'text']))}% of data")
+    print(f"Essay courses: {get_per_scores(len(all_scores[all_scores.domain == 'essay']))}% of data")
+
+
 def inspect_missing_data(df: pd.DataFrame, df_name: str):
     print(f"==Inspecting missing data for {df_name}==")
     print(df.isnull().sum().reset_index(name='Nb of NAN'))
