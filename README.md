@@ -10,6 +10,8 @@ The main analysis and results are documented in the Jupyter notebook:
 
 Please refer to this notebook for our research question, methodology, model results, and conclusions.
 
+You can find our report in the file **``MLBD__PROJECT_M4.pdf`**.
+
 ## ⚠️ Important Note on Data
 
 We provide an **updated version of `math_results.csv`**, which we received directly from Tom from GoGymi.
