@@ -10,7 +10,7 @@ The main analysis and results are documented in the Jupyter notebook:
 
 Please refer to this notebook for our research question, methodology, model results, and conclusions.
 
-You can find our report in the file **``MLBD__PROJECT_M4.pdf`**.
+You can find our report in the file **`MLBD__PROJECT_M4.pdf`**.
 
 ## ⚠️ Important Note on Data
 
