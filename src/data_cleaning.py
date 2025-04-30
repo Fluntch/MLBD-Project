@@ -3,6 +3,64 @@ from src.config import *
 
 DATA_DIR = "data/original"
 
+def plot_data_loss_bars(
+    total_activity,
+    removed_dev_activity,
+    removed_invalid_times,
+    removed_zero_durations,
+    total_scores,
+    removed_non_first_attempts
+):
+
+    COLORS = {
+        "Original": "#77DD77",
+        "Dev courses removed": "#6CA0DC",
+        "Invalid times removed": "#FF6961",
+        "Zero duration removed": "#FF5733",
+        "Final (activity)": "#555555",
+        "Non-first attempts removed": "#FCE3B3",
+        "Final (scores)": "#555555"
+    }
+
+    activity_steps = [
+        ("Original", total_activity),
+        ("Dev courses removed", total_activity - removed_dev_activity),
+        ("Invalid times removed", total_activity - removed_dev_activity - removed_invalid_times),
+        ("Zero duration removed", total_activity - removed_dev_activity - removed_invalid_times - removed_zero_durations),
+    ]
+
+    score_steps = [
+        ("Original", total_scores),
+        ("Non-first attempts removed", total_scores - removed_non_first_attempts),
+    ]
+
+    fig, axs = plt.subplots(1, 2, figsize=(14, 6))
+
+    axs[0].bar(
+        [step[0] for step in activity_steps],
+        [step[1] for step in activity_steps],
+        color=[COLORS[k] for k in [s[0] for s in activity_steps]]
+    )
+    axs[0].set_title(f"Data Retention in activity.csv ({total_activity} rows)", fontsize=15)
+    axs[0].set_ylabel("Rows remaining")
+    axs[0].tick_params(axis='x', labelrotation=30)
+    for i, val in enumerate([s[1] for s in activity_steps]):
+        axs[0].text(i, val + total_activity * 0.01, str(val), ha='center', fontsize=11)
+
+    axs[1].bar(
+        [step[0] for step in score_steps],
+        [step[1] for step in score_steps],
+        color=[COLORS[k] for k in [s[0] for s in score_steps]]
+    )
+    axs[1].set_title(f"Data Retention in all_scores.csv ({total_scores} rows)", fontsize=15)
+    axs[1].tick_params(axis='x', labelrotation=30)
+    for i, val in enumerate([s[1] for s in score_steps]):
+        axs[1].text(i, val + total_scores * 0.01, str(val), ha='center', fontsize=11)
+
+    plt.tight_layout()
+    save_plot(fig, __file__, "Data Retention Over Cleaning Steps")
+    plt.close()
+
 def add_domains(activity: pd.DataFrame,
                 all_scores: pd.DataFrame,
                 math_results: pd.DataFrame,
@@ -290,8 +348,10 @@ def clean():
 
     act_bef = len(activity)
     activity = activity[~activity.course_id.isin(courses_to_remove)]
+    removed_dev_activity = act_bef - len(activity)
     print(
-        f"Removed {act_bef - len(activity)} ({round((1 - len(activity) / act_bef) * 100, 2)}%) courses from activity since they belong to courses used in development of the platform.")
+        f"Removed {removed_dev_activity} ({round((1 - len(activity) / act_bef) * 100, 2)}%) courses from activity since they belong to courses used in development of the platform.")
+
 
     # Remove all scores from exams which weren't the first attempt
     before_len = len(all_scores)
@@ -302,9 +362,9 @@ def clean():
         .first()
     )
     after_len = len(all_scores)
-    dropped = before_len - after_len
-    dropped_perc = round((dropped / before_len) * 100, 2)
-    print(f"Removed {dropped} entries ({dropped_perc}%) from all_scores to keep only first exam attempts per user.")
+    removed_non_first_attempts  = before_len - after_len
+    dropped_perc = round((removed_non_first_attempts / before_len) * 100, 2)
+    print(f"Removed {removed_non_first_attempts} entries ({dropped_perc}%) from all_scores to keep only first exam attempts per user.")
 
 
     # add domain to activity.csv
@@ -321,7 +381,9 @@ def clean():
               "We will handle these values.")
         visualize_dates(all_scores, 'time')
 
+    act_bef_cleaning_dates = len(activity)
     activity = clean_activity_dates(activity)
+    removed_invalid_times = act_bef_cleaning_dates - len(activity)
     compare_times_from_activity_and_scores(activity, all_scores)
     print(f"The scores times lie in a reasonable range (between {all_scores['time'].min()} and {all_scores['time'].max()}).\n"
           f"There is also only one time column ('date'), so there are no conflicts with order of events."
@@ -345,3 +407,18 @@ def clean():
     activity.to_csv("data/cleaned/activity.csv", index=False)
     all_scores.to_csv("data/cleaned/all_scores.csv", index=False)
     print("===Finished data cleaning. Wrote the updated file to data/cleaned===")
+
+    # Just for plotting the data retention graph: lost data due to zero duration
+    unuseable = activity[activity['activity_completed'].isna()]
+    removed_zero_durations = len(activity) - len(unuseable)
+
+
+    # Plot data loss summary
+    plot_data_loss_bars(
+        total_activity=act_bef,
+        removed_dev_activity=removed_dev_activity,
+        removed_invalid_times=removed_invalid_times,
+        removed_zero_durations=removed_zero_durations,
+        total_scores=scores_bef,
+        removed_non_first_attempts=removed_non_first_attempts
+    )
