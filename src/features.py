@@ -25,6 +25,9 @@ def extract():
     # avg_performance
     performances = compute_average_performance(all_scores)
 
+    # chat bots interactions per user day
+    user_days = compute_chatbot_interactions(user_days)
+
     # avg_number_of_questions_attempted
 
     # avg_number_of_questions_solved
@@ -32,7 +35,6 @@ def extract():
     # avg_time_between_consecutive_exams
 
     # usage_frequency(worked on the platform for at least 15 minutes)
-
     user_days.to_csv("data/features/user_days.csv", index=False)
     performances.to_csv("data/features/performances.csv", index=False)
     activity.to_csv("data/features/activity.csv", index=False)

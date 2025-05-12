@@ -4,3 +4,4 @@ from .study_days_per_student import compute_study_and_exam_days
 from .number_of_activities import compute_number_of_activities
 from .time_spent_per_day import compute_time_spent_per_day
 from .avg_performance import compute_average_performance
+from .chatbot_usage import compute_chatbot_interactions
