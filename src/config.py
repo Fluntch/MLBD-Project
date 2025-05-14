@@ -1,5 +1,5 @@
-PLOT = True
-PREPROCESS = True
+PLOT = False 
+PREPROCESS = False
 EXTRACT = True
 MODEL = False
 
