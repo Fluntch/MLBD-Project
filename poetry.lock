@@ -719,6 +719,17 @@ unicode = ["unicodedata2 (>=15.1.0) ; python_version <= \"3.12\""]
 woff = ["brotli (>=1.0.1) ; platform_python_implementation == \"CPython\"", "brotlicffi (>=0.8.0) ; platform_python_implementation != \"CPython\"", "zopfli (>=0.1.4)"]
 
 [[package]]
+name = "fpdf"
+version = "1.7.2"
+description = "Simple PDF generation for Python"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "fpdf-1.7.2.tar.gz", hash = "sha256:125840783289e7d12552b1e86ab692c37322e7a65b96a99e0ea86cca041b6779"},
+]
+
+[[package]]
 name = "fqdn"
 version = "1.4.0"
 description = "Validate fully-qualified domain names compliant to RFC 1035 and the preferred form in RFC 3686 s. 2."
@@ -3069,4 +3080,4 @@ test = ["websockets"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10"
-content-hash = "52d8f6e26e9306d8a907fa1a842d289ca2e6a9396ab334a0c6e1c7c659fb520e"
+content-hash = "bada713463e0a1cdf13e567ba77a021d210a865a93d2cffbc9fd0abda52618e3"
